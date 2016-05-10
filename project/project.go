@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/apex/log"
@@ -65,6 +66,7 @@ type Project struct {
 	Service      lambdaiface.LambdaAPI
 	Functions    []*function.Function
 	IgnoreFile   []byte
+	Bundle       string
 	nameTemplate *template.Template
 }
 
@@ -95,12 +97,14 @@ func (p *Project) defaults() {
 func (p *Project) Open() error {
 	p.defaults()
 
-	f, err := os.Open(filepath.Join(p.Path, "project.json"))
+	f, err := ioutil.ReadFile(filepath.Join(p.Path, "project"+p.Bundle+".json"))
 	if err != nil {
 		return err
 	}
 
-	if err := json.NewDecoder(f).Decode(&p.Config); err != nil {
+	f2 := os.ExpandEnv(string(f))
+
+	if err := json.NewDecoder(strings.NewReader(f2)).Decode(&p.Config); err != nil {
 		return err
 	}
 

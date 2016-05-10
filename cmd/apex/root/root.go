@@ -31,6 +31,7 @@ var profile string
 
 // region for AWS.
 var region string
+var bundle string
 
 // Session instance.
 var Session *session.Session
@@ -64,6 +65,7 @@ func init() {
 	f.StringVarP(&logLevel, "log-level", "l", "info", "Log severity level")
 	f.StringVarP(&profile, "profile", "p", "", "AWS profile")
 	f.StringVarP(&region, "region", "r", "", "AWS region")
+	f.StringVarP(&bundle, "bundle", "b", "", "Bundle")
 
 	Command.SetHelpTemplate("\n" + Command.HelpTemplate())
 }
@@ -130,6 +132,12 @@ func Prepare(c *cobra.Command, args []string) error {
 		Environment: environment,
 		Log:         log.Log,
 		Path:        ".",
+	}
+
+	if bundle == "" {
+		Project.Bundle = ""
+	} else {
+		Project.Bundle = "." + bundle
 	}
 
 	if dryRun {
